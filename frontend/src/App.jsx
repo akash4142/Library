@@ -4,7 +4,7 @@ import { Box } from "@chakra-ui/react";
 import HomePage from "./pages/Homepage";
 import CreateBook from "./pages/CreateBook";
 import Navbar from "./components/Navbar";
-import NewUser from "./pages/newUser";
+import NewUser from "./pages/NewUser";
 import LogIn from "./pages/LogIn";
 import { useUserStore } from "./store.js/user";
 import UserPage from "./pages/UserPage";
