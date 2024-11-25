@@ -2,16 +2,16 @@ import { create } from "zustand";
 
 export const useBookStore = create((set) => ({
   books: [],
-  filteredBooks:[],
-  setFilteredBooks:(filteredBooks)=>set({filteredBooks}),
+  filteredBooks: [],
+  setFilteredBooks: (filteredBooks) => set({ filteredBooks }),
   setBooks: (books) => set({ books }),
-  createBook: async (newBook,navigate) => {
+  createBook: async (newBook, navigate) => {
     if (
       !newBook.bookId ||
       !newBook.bookTitle ||
       !newBook.bookAuthor ||
       !newBook.bookGenre ||
-      !newBook.image||
+      !newBook.image ||
       !newBook.availableCopies
     ) {
       return { success: false, message: "Please fill all the fields" };
@@ -69,5 +69,58 @@ export const useBookStore = create((set) => ({
     set((state) => ({
       books: state.books.map((book) => (book._id === pid ? data.data : book)),
     }));
+  },
+  issueBook: async (userId, bookId) => {
+    if (!userId || !bookId) {
+      return { success: false, message: "Please fill all the field." };
+    }
+    try {
+      const res = await fetch("/api/book/issue", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId, bookId }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        return { success: true, message: "Book issued successfully.", data };
+      } else {
+        return {
+          success: false,
+          message: data.message || "Failed to issue book",
+        };
+      }
+    } catch (error) {
+      console.error("Error issuing book: ", error);
+      return { success: false, message: "An unexpected error occurred" };
+    }
+  },
+  returnBook: async (userId, bookId) => {
+    if (!userId || !bookId) {
+      return { success: false, message: "Please fill all the fields." };
+    }
+    try {
+      const res = await fetch("/api/book/return", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId, bookId }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        return { success: true, message: "Book return successfully.", data };
+      } else {
+        return {
+          success: false,
+          message: data.message || "Failed to return book",
+        };
+      }
+    } catch (error) {
+      console.error("Error issuing book: ", error);
+      return { success: false, message: "An unexpected error occurred" };
+    }
   },
 }));

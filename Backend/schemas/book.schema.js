@@ -19,16 +19,16 @@ const BookSchema = new mongoose.Schema(
       type: String,
       require: true,
     },
-    bookDesc:{
-      type:String,
-      require:true,
+    bookDesc: {
+      type: String,
+      require: true,
     },
-    image:{
-      type:String,
-      required:true,
+    image: {
+      type: String,
+      required: true,
     },
     availableCopies: {
-      type: String,
+      type: Number,
       require: true,
     },
   },

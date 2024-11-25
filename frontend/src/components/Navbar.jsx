@@ -8,19 +8,19 @@ import {
   useColorMode,
   useColorModeValue,
   Input,
+  Box,
 } from "@chakra-ui/react";
 import { Link, useNavigate } from "react-router-dom";
 import { CiSquarePlus, CiCloudMoon, CiSun, CiSearch } from "react-icons/ci";
 import { useUserStore } from "../store.js/user";
 import { useBookStore } from "../store.js/book";
 
-
 const Navbar = () => {
   const { colorMode, toggleColorMode } = useColorMode();
   const { users, role, funLogOut } = useUserStore();
   const { books, setFilteredBooks } = useBookStore();
   const [searchQuery, setSearchQuery] = useState("");
-  const isLoggedIn = users.length > 0;
+  const isLoggedIn = users.length > 0; // Check if a user is logged in
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,7 +67,7 @@ const Navbar = () => {
 
         <HStack spacing={2} alignItems={"center"}>
           <Input
-            placeholder="search books , authors or genre"
+            placeholder="Search books, authors, or genres"
             value={searchQuery}
             onChange={(e) => {
               const query = e.target.value;
@@ -78,25 +78,29 @@ const Navbar = () => {
           <CiSearch onClick={() => handleSearch(searchQuery)} />
         </HStack>
 
-        <HStack spacing={2} alignItems={"center"}>
-          {/* Button to Create Account */}
+        <HStack spacing={4} alignItems={"center"}>
           {!isLoggedIn && (
-            <Link to={"/newUser"}>
-              <Button>Create Account</Button>
-            </Link>
+            <>
+              <Link to={"/newUser"}>
+                <Button>Create Account</Button>
+              </Link>
+              <Link to={"/logIn"}>
+                <Button>Log In</Button>
+              </Link>
+            </>
           )}
 
-          {/* Button to Log In */}
-          {!isLoggedIn && (
-            <Link to={"/logIn"}>
-              <Button>Log In</Button>
-            </Link>
+          {isLoggedIn && (
+            <Flex alignItems="center" gap={2}>
+              <Text fontSize="md" fontWeight="bold" color="teal.500">
+                Welcome, {users[0]?.userName || "User"}!
+              </Text>
+              <Button onClick={handleLogout} colorScheme="red" size="sm">
+                Log Out
+              </Button>
+            </Flex>
           )}
 
-          {/* Button to Log Out */}
-          {isLoggedIn && <Button onClick={handleLogout}>Log Out</Button>}
-
-          {/* Button to add new item */}
           {role === "admin" && (
             <Link to={"/create"}>
               <Button>
@@ -115,4 +119,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-//working on the login , create account and logout buttons

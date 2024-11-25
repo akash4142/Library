@@ -1,7 +1,7 @@
 import React from "react";
 import { useBookStore } from "../store.js/book";
 import { Container, VStack, Text, SimpleGrid, Box } from "@chakra-ui/react";
-import BookCard from "../components/BookCard";
+import AdminCard from "../components/AdminHome"
 
 const Homepage = () => {
   const { books, filteredBooks } = useBookStore();
@@ -49,7 +49,7 @@ const Homepage = () => {
                 maxW="320px" // Restrict the max width for the card container
                 margin="0 auto" // Center the card horizontally within its grid column
               >
-                <BookCard book={book} />
+                <AdminCard book={book} />
               </Box>
             ))
           ) : (

@@ -1,5 +1,6 @@
 import mongoose,{Schema} from "mongoose";
 
+
 const userSchema = new  mongoose.Schema({
     userId :{
         type:Number,
@@ -23,6 +24,14 @@ const userSchema = new  mongoose.Schema({
         enum:['admin','user','Admin','User'],
         require:true,
     },
+    borrowedBooks:[{
+        book:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Book",
+        },
+        issuedDate:{type:Date,default:Date.now},
+        returnDate:{type:Date,default:null}
+    }]
 },{
     timestamps:true,
 })
