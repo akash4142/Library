@@ -28,19 +28,22 @@ const AdminHome = ({ book }) => {
   const [availableCopies, setAvailableCopies] = useState(book.availableCopies);
   const [isBookIssued, setIsBookIssued] = useState(false);
   const toast = useToast();
-  const { deleteBook, updateBook, issueBook, returnBook } = useBookStore();
+  const { deleteBook, updateBook, issueBook, returnBook, fetchIssuedBook } = useBookStore();
   const { users } = useUserStore();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const currentUser = users.length > 0 ? users[0] : null;
 
+  
   useEffect(() => {
-    if (currentUser && currentUser.issueBook && book) {
-      const hasIssued = currentUser.issueBook.includes(book._id);
-      setIsBookIssued(hasIssued);
-    } else {
-      setIsBookIssued(false);
+    if (currentUser && book) {
+      const fetchBooks = async () => {
+        const issuedBooks = await fetchIssuedBook(currentUser._id);
+        const hasIssued = issuedBooks && issuedBooks.some((issuedBook)=>issuedBook.bookTitle===book.bookTitle);
+        setIsBookIssued(hasIssued); 
+      };
+      fetchBooks();
     }
-  }, [currentUser, book]);
+  }, [currentUser, book, fetchIssuedBook]); 
 
   const handleUpdateBook = async (pid, updatedBook) => {
     await updateBook(pid, updatedBook);
@@ -84,7 +87,7 @@ const AdminHome = ({ book }) => {
     const { success, message } = await issueBook(currentUser._id, book._id);
     if (success) {
       setAvailableCopies((prev) => prev - 1);
-      setIsBookIssued(true);
+      setIsBookIssued(true); // Update the state to reflect the issued status
     }
     toast({
       title: success ? "Success" : "Error",
@@ -110,7 +113,7 @@ const AdminHome = ({ book }) => {
     const { success, message } = await returnBook(currentUser._id, book._id);
     if (success) {
       setAvailableCopies((prev) => prev + 1);
-      setIsBookIssued(false);
+      setIsBookIssued(false); // Update the state to reflect the return status
     }
     toast({
       title: success ? "Success" : "Error",

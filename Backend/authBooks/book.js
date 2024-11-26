@@ -11,6 +11,31 @@ export const getAllBooks = async (req, res) => {
   }
 };
 
+export const getAllIssuedBooks = async (req, res) => {
+  const {id} = req.params;
+  if (mongoose.isValidObjectId(id)) {
+  try {
+     const user = await User.findOne({_id:id}).populate("borrowedBooks.book").exec();
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    const issuedBooksData = user.borrowedBooks.map(borrowedBook => ({
+      bookTitle: borrowedBook.book.bookTitle,
+      bookAuthor: borrowedBook.book.bookAuthor,
+      issuedDate: borrowedBook.issuedDate,
+      returnDate: borrowedBook.returnDate
+    }));
+
+    res.status(200).json({ success: true, data: issuedBooksData });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+}else {
+  return res.status(400).json({ success: false, message: "Invalid Book ID" });
+}
+};
+
 export const addBook = async (req, res) => {
   const newBook = req.body;
   if (
@@ -175,3 +200,6 @@ export const returnBook = async (req, res) => {
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+
+

@@ -123,4 +123,27 @@ export const useBookStore = create((set) => ({
       return { success: false, message: "An unexpected error occurred" };
     }
   },
+  fetchIssuedBook:async(pid)=>{
+    try{
+    const res = await fetch(`api/book/${pid}`,{
+      method:'GET',
+      headers:{
+        'Content-Type':'application/json',
+      },
+    });
+
+    if(!res.ok){
+      throw new Error('User not found');
+    }
+    const data = await res.json();
+    if(data.success){
+      return data.data;
+    }else{
+      throw new Error(data.message);
+    }
+  }catch(err){
+      console.log('Error:',err.message);
+      return [];
+    }
+  }
 }));

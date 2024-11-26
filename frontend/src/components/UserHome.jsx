@@ -6,21 +6,25 @@ import { useBookStore } from "../store.js/book";
 const UserHome = ({ book }) => {
   const [availableCopies, setAvailableCopies] = useState(book.availableCopies);
   const [isHovered, setIsHovered] = useState(false); 
-  const { issueBook, returnBook } = useBookStore();
+  const { issueBook, returnBook,fetchIssuedBook } = useBookStore();
   const { users } = useUserStore();
   const currentUser = users.length > 0 ? users[0] : null;
   const isLoggedIn = users.length > 0;
   const toast = useToast();
   const [isBookIssued,setIsBookIssued] = useState(false);
+  
 
-  useEffect(()=>{
-    if(currentUser&& currentUser.issueBook && book){
-      const hasIssued = currentUser.issueBook.includes(book._id);
-      setIsBookIssued(hasIssued);
-    }else{
-      setIsBookIssued(false);
+  useEffect(() => {
+    if (currentUser && book) {
+      const fetchBooks = async () => {
+        const issuedBooks = await fetchIssuedBook(currentUser._id);
+        const hasIssued = issuedBooks && issuedBooks.some((issuedBook)=>issuedBook.bookTitle===book.bookTitle);
+        setIsBookIssued(hasIssued); 
+      };
+      fetchBooks();
     }
-  },[currentUser,book]);
+  }, [currentUser, book, fetchIssuedBook]); 
+  
 
   const handleIssueBook = async () => {
     if (!currentUser) {
