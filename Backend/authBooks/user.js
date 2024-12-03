@@ -38,6 +38,7 @@ export const createNewUser = async (req, res) => {
     // Create a new user
     const newUser = new User(user);
     await newUser.save();
+
     return res.status(201).json({
       success: true,
       message: "User created successfully.",
@@ -142,5 +143,86 @@ export const deleteUser = async (req, res) => {
     return res.status(200).json({ success: true, message: "User deleted" });
   } catch (error) {
     return res.status(400).json({ success: false, message: "Server Error" });
+  }
+};
+
+export const getNotifications = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findOne({ _id: id });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.status(200).json({ success: true, data: user.notifications });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const markNotificationAsRead = async (req, res) => {
+  const { id, notify_id } = req.params;
+
+  if (!id || !notify_id) {
+    return res.status(400).json({ success: false, message: "Please fill all the fields." });
+  }
+
+  try {
+    const user = await User.findOne({ _id: id });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const notification = user.notifications.id(notify_id);
+
+    if (!notification) {
+      return res.status(404).json({ success: false, message: "Notification not found" });
+    }
+
+    if (notification.read) {
+      // If the notification is already marked as read, delete it from the user's notifications
+      user.notifications.id(notify_id).remove();
+      await user.save();
+      return res.status(200).json({ success: true, message: "Notification deleted successfully" });
+    }
+
+    // If the notification is not yet read, mark it as read
+    notification.read = true;
+    await user.save();
+
+    res.status(200).json({ success: true, message: "Notification marked as read" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const removeOldNotifications = async (req, res) => {
+  const  {id}  = req.params;
+
+  try {
+    const twoMinutesAgo = new Date(Date.now() - 12 * 60 * 1000);
+
+    const result = await User.updateOne(
+      { _id: id }, 
+      {
+        $pull: {
+          notifications: {
+            timestamp: { $lt: twoMinutesAgo }, 
+            read:true,
+          },
+        },
+      }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ success: false, message: "No old notifications found for this user." });
+    }
+
+    res.status(200).json({ success: true, message: `Successfully removed old notifications for user ${id}.` });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Internal server error." });
   }
 };

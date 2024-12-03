@@ -1,5 +1,24 @@
 import mongoose,{Schema} from "mongoose";
 
+const notificationSchema = new mongoose.Schema({
+    message: {
+      type: String,
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: ["ISSUE", "RETURN", "REMINDER", "OVERDUE"], // Define notification types
+      default: "REMINDER",
+    },
+    timestamp: {
+      type: Date,
+      default: Date.now,
+    },
+    read: {
+      type: Boolean,
+      default: false,
+    },
+  });
 
 const userSchema = new  mongoose.Schema({
     userId :{
@@ -31,7 +50,8 @@ const userSchema = new  mongoose.Schema({
         },
         issuedDate:{type:Date,default:Date.now},
         returnDate:{type:Date,default:null}
-    }]
+    }],
+    notifications:[notificationSchema],
 },{
     timestamps:true,
 })

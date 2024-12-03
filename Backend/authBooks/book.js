@@ -138,6 +138,11 @@ export const issueBook = async (req, res) => {
     user.borrowedBooks.push({ book: bookId });
     book.availableCopies = parseInt(book.availableCopies, 10) + 1;
 
+    user.notifications.push({
+      message:`Book titled "${book.bookTitle}" has been issued to you`,
+      type:"ISSUE",
+    });
+
     await user.save();
     await book.save();
 
@@ -190,6 +195,10 @@ export const returnBook = async (req, res) => {
     // Increment the available copies of the book
     book.availableCopies = parseInt(book.availableCopies, 10) + 1;
 
+    user.notifications.push({
+      message:`book titled "${book.bookTitle}" has been returned.`,
+      type:"RETURN",
+    })
     await user.save();
     await book.save();
 
